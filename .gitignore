@@ -99,3 +99,4 @@ dist/
 config/local/
 logs/
 *.pid
+src/main/resources/config.properties

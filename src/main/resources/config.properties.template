@@ -1,14 +1,15 @@
+# Rename this file to config.properties
 # ADO Server Configuration
-ado.url=https://pat-source.netcompany.com/tfs
-ado.organization=NC02
-ado.project=KOMBITKY
-ado.repository=KOMBITKY
+ado.url=
+ado.organization=
+ado.project=
+ado.repository=
 
 # Authentication - Use a Personal Access Token
 # Token should be able to:
 # - Pull requests: Read
 # NEVER commit real tokens to version control!
-ado.auth.token=u555kj5frhf7moq6znpvjbiqaoqvkcsseuk2vadtkekqykv3dlla
+ado.auth.token=
 
 # API Versions (optional - defaults provided)
 #ado.version.api=7.1

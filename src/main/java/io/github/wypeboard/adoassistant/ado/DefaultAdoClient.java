@@ -7,6 +7,7 @@ import io.github.wypeboard.adoassistant.ado.model.AdoGitPullRequest;
 import io.github.wypeboard.adoassistant.ado.model.AdoGitPullRequestChange;
 import io.github.wypeboard.adoassistant.ado.model.AdoGitPullRequestChanges;
 import io.github.wypeboard.adoassistant.ado.model.AdoGitPullRequestIteration;
+import io.github.wypeboard.adoassistant.ado.model.AdoGitPullRequests;
 import io.github.wypeboard.adoassistant.ado.model.AdoIdentityRefWithVote;
 import io.github.wypeboard.adoassistant.ado.model.AdoPropertiesCollection;
 import io.github.wypeboard.adoassistant.ado.model.AdoTeamMember;
@@ -22,7 +23,8 @@ import java.util.stream.Collectors;
 public class DefaultAdoClient {
     private static final String CONNECTION_DATA_ROUTE = "/ConnectionData";
     private static final String REPOSITORIES_ROUTE = "/git/repositories/%s";
-    private static final String PULL_REQUESTS_ROUTE = REPOSITORIES_ROUTE + "/pullrequests/%d";
+    private static final String PULL_REQUESTS_FETCHER_ROUTE = REPOSITORIES_ROUTE + "/pullrequests";
+    private static final String PULL_REQUESTS_ROUTE = PULL_REQUESTS_FETCHER_ROUTE + "/%d";
     private static final String PR_PROPERTIES_ROUTE = PULL_REQUESTS_ROUTE + "/properties";
     private static final String PR_ITERATIONS_ROUTE = PULL_REQUESTS_ROUTE + "/iterations";
     private static final String PR_ITERATION_ROUTE = PR_ITERATIONS_ROUTE + "/%d";
@@ -77,6 +79,15 @@ public class DefaultAdoClient {
                 .withQueryParam("includeCommits", Boolean.TRUE.toString())
                 .toUrl();
         return connector.sendRequestAndParseResponse(GET, requestUrl, AdoGitPullRequest.class);
+    }
+
+    public List<AdoGitPullRequest> getPullRequests() {
+        // TODO add logic for fetching more than 1000.
+        String requestUrl = urlHelper.forProjectApi(PULL_REQUESTS_FETCHER_ROUTE,
+                "searchCriteria.status","active",
+                "$top","1000"
+                ).toUrl();
+        return connector.sendRequestAndParseResponse(GET, requestUrl, AdoGitPullRequests.class).getAdoGitPullRequestList();
     }
 
     public AdoPropertiesCollection getPullRequestProperties(int pullRequestId) {
