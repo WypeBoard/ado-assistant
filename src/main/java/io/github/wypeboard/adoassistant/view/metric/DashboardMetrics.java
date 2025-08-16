@@ -33,4 +33,10 @@ public interface DashboardMetrics {
      * Only once this method is called with the card be populated with data
      */
     void updateWidget();
+
+    /**
+     * Method that indicates where the metric is being fetched from. As it could be general pullrequest data, threads etc.
+     * @return
+     */
+    DataNeeds getDataNeeds();
 }

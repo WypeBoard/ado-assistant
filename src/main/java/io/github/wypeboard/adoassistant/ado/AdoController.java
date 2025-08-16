@@ -32,4 +32,8 @@ public class AdoController {
             List<AdoThread> commentThreads = this.adoClient.getCommentThreads(pullRequest.getPullRequestId());
         }
     }
+
+    public List<AdoGitPullRequest> fetchPullRequests() {
+        return null;
+    }
 }

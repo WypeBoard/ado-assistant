@@ -1,8 +1,10 @@
 package io.github.wypeboard.adoassistant.view;
 
 import io.github.wypeboard.adoassistant.ado.AdoController;
+import io.github.wypeboard.adoassistant.ado.model.AdoGitPullRequest;
 import io.github.wypeboard.adoassistant.view.metric.AllActivePullRequestsMetric;
 import io.github.wypeboard.adoassistant.view.metric.AllMandatoryVotesApprovedMetric;
+import io.github.wypeboard.adoassistant.view.metric.DataNeeds;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -75,20 +77,25 @@ public class DashboardView {
         this.refreshButton.setText("Fetching...");
         this.progressBar.setProgress(0);
 
-        Task<Void> fetchTask = new Task<Void>() {
+        // Start data fetching chain
+        fetchPullRequestData();
+    }
+
+    private void fetchPullRequestData() {
+        Task<List<AdoGitPullRequest>> fetchTask = new Task<List<AdoGitPullRequest>>() {
             @Override
-            protected Void call() throws Exception {
-                adoController.fetchAdoData();
-                return null;
+            protected List<AdoGitPullRequest> call() throws Exception {
+                return adoController.fetchPullRequests();
             }
 
             @Override
             protected void succeeded() {
-                refreshButton.setDisable(false);
-                refreshButton.setText("Refresh data");
-                progressBar.setProgress(1.0);
+                List<AdoGitPullRequest> pullRequests = getValue();
 
-                updateMetrics();
+                updateMetrics(pullRequests, DataNeeds.PULL_REQUESTS);
+                progressBar.setProgress(0.33);
+
+
             }
 
             @Override
@@ -98,8 +105,10 @@ public class DashboardView {
                 progressBar.setProgress(1.0);
             }
         };
+    }
 
-        Thread backgroundThread = new Thread(fetchTask);
+    private void runTask(Task<?> runableTask) {
+        Thread backgroundThread = new Thread(runableTask);
         backgroundThread.setDaemon(true);
         backgroundThread.start();
     }
@@ -126,8 +135,11 @@ public class DashboardView {
         root.add(container, col, row);
     }
 
-    private void updateMetrics() {
+    private void updateMetrics(List<AdoGitPullRequest> pullRequests, DataNeeds dataNeeds) {
         for (DashboardMetrics metric : metrics) {
+            if (metric.getDataNeeds() != dataNeeds) {
+                continue;
+            }
             metric.updateWidget();
         }
     }
