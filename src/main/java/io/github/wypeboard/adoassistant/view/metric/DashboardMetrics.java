@@ -2,6 +2,8 @@ package io.github.wypeboard.adoassistant.view.metric;
 
 import javafx.scene.Parent;
 
+import java.util.List;
+
 public interface DashboardMetrics {
 
     /**
@@ -26,7 +28,7 @@ public interface DashboardMetrics {
      *
      * @param data Any object data.
      */
-    void consumeData(Object data);
+    void consumeData(List<?> data);
 
     /**
      * Method that allows for the metric card to be updated

@@ -2,6 +2,7 @@ package io.github.wypeboard.adoassistant.view;
 
 import io.github.wypeboard.adoassistant.ado.AdoController;
 import io.github.wypeboard.adoassistant.ado.model.AdoGitPullRequest;
+import io.github.wypeboard.adoassistant.ado.model.AdoThread;
 import io.github.wypeboard.adoassistant.view.metric.AllActivePullRequestsMetric;
 import io.github.wypeboard.adoassistant.view.metric.AllMandatoryVotesApprovedMetric;
 import io.github.wypeboard.adoassistant.view.metric.DataNeeds;
@@ -27,8 +28,8 @@ public class DashboardView {
     private GridPane root;
     private ProgressBar progressBar;
     private Button refreshButton;
-    private AdoController adoController;
-    private List<DashboardMetrics> metrics;
+    private final AdoController adoController;
+    private final List<DashboardMetrics> metrics;
 
     public DashboardView() {
         this.metrics = new ArrayList<>();
@@ -95,7 +96,7 @@ public class DashboardView {
                 updateMetrics(pullRequests, DataNeeds.PULL_REQUESTS);
                 progressBar.setProgress(0.33);
 
-
+                fetchPullRequestThreads(pullRequests);
             }
 
             @Override
@@ -105,6 +106,32 @@ public class DashboardView {
                 progressBar.setProgress(1.0);
             }
         };
+        runTask(fetchTask);
+    }
+
+    private void fetchPullRequestThreads(List<AdoGitPullRequest> pullRequests) {
+        Task<List<AdoThread>> fetchTheads = new Task<List<AdoThread>>() {
+            @Override
+            protected List<AdoThread> call() throws Exception {
+                return adoController.fetchPullRequestThreads(pullRequests);
+            }
+
+            @Override
+            protected void succeeded() {
+                List<AdoThread> threads = getValue();
+
+                updateMetrics(threads, DataNeeds.THREADS);
+                progressBar.setProgress(1.0);
+            }
+
+            @Override
+            protected void failed() {
+                refreshButton.setDisable(false);
+                refreshButton.setText("Error happened");
+                progressBar.setProgress(1.0);
+            }
+        };
+        runTask(fetchTheads);
     }
 
     private void runTask(Task<?> runableTask) {
@@ -135,11 +162,12 @@ public class DashboardView {
         root.add(container, col, row);
     }
 
-    private void updateMetrics(List<AdoGitPullRequest> pullRequests, DataNeeds dataNeeds) {
+    private void updateMetrics(List<?> data, DataNeeds dataNeeds) {
         for (DashboardMetrics metric : metrics) {
             if (metric.getDataNeeds() != dataNeeds) {
                 continue;
             }
+            metric.consumeData(data);
             metric.updateWidget();
         }
     }

@@ -27,7 +27,7 @@ public class AllActivePullRequestsMetric implements DashboardMetrics {
     }
 
     @Override
-    public void consumeData(Object data) {
+    public void consumeData(List<?> data) {
 
     }
 
@@ -35,5 +35,10 @@ public class AllActivePullRequestsMetric implements DashboardMetrics {
     public void updateWidget() {
         this.listView.getItems().clear();
         this.listView.getItems().addAll(data);
+    }
+
+    @Override
+    public DataNeeds getDataNeeds() {
+        return DataNeeds.PULL_REQUESTS;
     }
 }

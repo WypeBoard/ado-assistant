@@ -36,4 +36,8 @@ public class AdoController {
     public List<AdoGitPullRequest> fetchPullRequests() {
         return null;
     }
+
+    public List<AdoThread> fetchPullRequestThreads(List<AdoGitPullRequest> pullRequests) {
+        return null;
+    }
 }
